@@ -1,2 +1,2 @@
 # Adze
-Cardano-node Cli for NixOS
+Cardano-node Management Cli for NixOS
