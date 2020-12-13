@@ -40,8 +40,6 @@ TNT_TAIL_FILE="cnRelayTestNet.log"
 #INITIALIZE ALL NECESSARY DIRECTORIES
 
         CETAK_PATH_TT=${CETAK_PATH}/${MAIN_FOLDER}
-        CETAK_PATH_SYS=${CETAK_PATH_TT}/cetak-sys
-        CETAK_PATH_SH=${CETAK_PATH_SYS}/SH
         CETAK_PATH_CNF=${CETAK_PATH_TT}/CONF
         CETAK_PATH_SNM=${CETAK_PATH_TT}/state-node-mainnet
         CETAK_PATH_SNT=${CETAK_PATH_TT}/state-node-testnet
@@ -64,8 +62,6 @@ TNT_TAIL_FILE="cnRelayTestNet.log"
 InitializeFolders() {   	#INITIALIZE ALL NECESSARY DIRECTORIES
 
         [[ -d ${CETAK_PATH_TT} ]] || mkdir -p -- ${CETAK_PATH}/${MAIN_FOLDER}
-        [[ -d ${CETAK_PATH_SYS} ]] || mkdir -p -- ${CETAK_PATH_TT}/cetak-sys
-        [[ -d ${CETAK_PATH_SH} ]] || mkdir -p -- ${CETAK_PATH_SYS}/SH
         [[ -d ${CETAK_PATH_CNF} ]] || mkdir -p -- ${CETAK_PATH_TT}/CONF
         [[ -d ${CETAK_PATH_SNM} ]] || mkdir -p -- ${CETAK_PATH_TT}/state-node-mainnet
         [[ -d ${CETAK_PATH_SNT} ]] || mkdir -p -- ${CETAK_PATH_TT}/state-node-testnet
