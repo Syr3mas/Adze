@@ -3,13 +3,13 @@ Cardano-node Management Cli for NixOS
 
 How to :
 
-Make the script executable: 
+### Make the script executable: 
 $ chmod +x adze.sh
 
-Than launch:	
+### Than launch:	
 $ ./adze.sh
 
-We suggest to choose options:
+### We suggest to choose options:
 
 1. Install Default Command.
 
