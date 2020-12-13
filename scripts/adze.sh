@@ -90,11 +90,6 @@ local vMnSOCKET="${CETAK_PATH_SNM}/node.socket" # SOCKET
 local LAUNCHv2="${CETAK_PATH_TT}/${MNT_NODE_LINK}/bin/cardano-node"
 local vMnCONFIG="${CETAK_PATH_CNF_MNT}/mainnet-config.json" # CONF
 
-echo " LAUNCHv2: $LAUNCHv2"
-echo ""
-echo " vMnCONFIG: $vMnCONFIG"
-echo ""
-
 rm ${CETAK_PATH_TMP}/${MNT_TAIL_FILE}
 
 nohup ${LAUNCHv2} run \
@@ -119,11 +114,6 @@ local vTnSOCKET="${CETAK_PATH_SNT}/node.socket" # SOCKET
 
 local LAUNCHv2="${CETAK_PATH_TT}/${TNT_NODE_LINK}/bin/cardano-node"
 local vTnCONFIG="${CETAK_PATH_CNF_TNT}/testnet-config.json" # CONF
-
-echo " LAUNCHv2: $LAUNCHv2"
-echo ""
-echo " vTnCONFIG: $vTnCONFIG"
-echo ""
 
 rm ${CETAK_PATH_TMP}/${TNT_TAIL_FILE}
 
