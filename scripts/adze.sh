@@ -77,7 +77,7 @@ InitializeFolders() {   	#INITIALIZE ALL NECESSARY DIRECTORIES
 ### -----------------------------
 
 # -------------------------------
-MAINNET(){                   	# MAINNET CONFIGURATION
+MAINNET() {                   	# MAINNET CONFIGURATION
 
 local vMnTOPOLOGY="$CETAK_PATH_CNF_MNT/mainnet-topology.json" # TOPOLOGY
 local vMnDATABASE="${CETAK_PATH_SNM}/db-mainnet" # DATABASE
@@ -131,7 +131,7 @@ nohup ${LAUNCHv2} run \
 
 InstallCMD() {
 
-        cmdArray=( curl jq git wget tmux htop )
+        cmdArray=( git wget tmux htop )
         for vCmd in "${cmdArray[@]}"
         do
 	if ! command -v "$vCmd" > /dev/null 2>&1
