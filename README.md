@@ -21,13 +21,13 @@ $ ./adze.sh
 
 ## As root use the content in nixos folder and create a file call iohk-binary-cache.nix 
 - nano /etc/nixos/iohk-binary-cache.nix
-- copy paste or clone nixos folder content
+- copy paste or clone nixos 'iohk-binary-cache' from folder
 ## Next
 - nano /etc/nixos/configuration.nix
 
-        ## Add the link to the file configuration imports section should be similar to this :
-          ##     imports =
-          ##          [
-          ##              ./hardware-configuration.nix
-          ##              ./iohk-binary-cache.nix
-          ##          ];
+         Add the link to the file configuration imports section should be similar to this :
+               imports =
+                    [
+                        ./hardware-configuration.nix
+                        ./iohk-binary-cache.nix
+                    ];
