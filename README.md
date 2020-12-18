@@ -17,9 +17,9 @@ $ ./adze.sh
 
 7. Launch TESTnet Node.
 
-### Cache Configuration
+## Cache Configuration :
 
-## As root use the content in nixos folder and create a file call iohk-binary-cache.nix 
+### As root use the content in nixos folder and create a file call iohk-binary-cache.nix 
 - nano /etc/nixos/iohk-binary-cache.nix
 - copy paste or clone nixos 'iohk-binary-cache' from folder
 ## Next
