@@ -24,9 +24,9 @@ $ ./adze.sh
 - copy paste or clone nixos folder content
 ## Next
 - nano /etc/nixos/configuration.nix
-        ##. Add the link to the file imports section should be similar to this :
-               imports =
-                    [ # Include the results of the hardware scan.
-                        ./hardware-configuration.nix
-                        ./iohk-binary-cache.nix
-                    ];
+        ## Add the link to the file imports section should be similar to this :
+          ###     imports =
+          ###          [ # Include the results of the hardware scan.
+          ###              ./hardware-configuration.nix
+          ###              ./iohk-binary-cache.nix
+          ###          ];
