@@ -24,7 +24,8 @@ $ ./adze.sh
 - copy paste or clone nixos folder content
 ## Next
 - nano /etc/nixos/configuration.nix
-        ## Add the link to the file imports section should be similar to this :
+
+        ## Add the link to the file configuration imports section should be similar to this :
           ##     imports =
           ##          [
           ##              ./hardware-configuration.nix
