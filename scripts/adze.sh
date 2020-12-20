@@ -8,7 +8,7 @@
 
 CETAK_PATH=$(eval echo "~$USER")
 
-MAIN_FOLDER=adze
+MAIN_FOLDER=adze  ### Important to keep
 
 NODE_IP=127.0.0.1 # NODE_IP
 NODE_PORT=3001 # NODE_PORT
@@ -25,16 +25,6 @@ MNT_TAIL_FILE="cnRelayMainNet.log"
 TNT_TAIL_FILE="cnRelayTestNet.log"
 
 ### -----------------------------
-        mnnetConfig="https://hydra.iohk.io/job/Cardano/cardano-node/cardano-deployment/latest-finished/download/1/mainnet-config.json"
-        mnnetByronGenesis="https://hydra.iohk.io/job/Cardano/cardano-node/cardano-deployment/latest-finished/download/1/mainnet-byron-genesis.json"
-        mnnetShelleyGenesis="https://hydra.iohk.io/job/Cardano/cardano-node/cardano-deployment/latest-finished/download/1/mainnet-shelley-genesis.json"
-        mnnetTopology="https://hydra.iohk.io/job/Cardano/cardano-node/cardano-deployment/latest-finished/download/1/mainnet-topology.json"
-
-	ttnetConfig="https://hydra.iohk.io/job/Cardano/cardano-node/cardano-deployment/latest-finished/download/1/testnet-config.json"
-        ttnetByronGenesis="https://hydra.iohk.io/job/Cardano/cardano-node/cardano-deployment/latest-finished/download/1/testnet-byron-genesis.json"
-        ttnetShelleyGenesis="https://hydra.iohk.io/job/Cardano/cardano-node/cardano-deployment/latest-finished/download/1/testnet-shelley-genesis.json"
-        ttnetTopology="https://hydra.iohk.io/job/Cardano/cardano-node/cardano-deployment/latest-finished/download/1/testnet-topology.json"
-### -----------------------------
 
 ### -----------------------------
 #INITIALIZE ALL NECESSARY DIRECTORIES
@@ -50,7 +40,7 @@ TNT_TAIL_FILE="cnRelayTestNet.log"
         #----------------------------------------------------------------------
         CETAK_PATH_TMP=${CETAK_PATH_TT}/TMP_FOLDER
         #----------------------------------------------------------------------
-	CETAK_PATH_CNF_MNT=${CETAK_PATH_CNF}/mainnet
+        CETAK_PATH_CNF_MNT=${CETAK_PATH_CNF}/mainnet
         CETAK_PATH_CNF_TNT=${CETAK_PATH_CNF}/testnet
 
 #INITIALIZE ALL NECESSARY DIRECTORIES
@@ -61,7 +51,7 @@ TNT_TAIL_FILE="cnRelayTestNet.log"
 ### -----------------------------
 
 ### -----------------------------
-InitializeFolders() {   	#INITIALIZE ALL NECESSARY DIRECTORIES
+InitializeFolders() {           #INITIALIZE ALL NECESSARY DIRECTORIES
 
         [[ -d ${CETAK_PATH_TT} ]] || mkdir -p -- ${CETAK_PATH}/${MAIN_FOLDER}
         [[ -d ${CETAK_PATH_SYS} ]] || mkdir -p -- ${CETAK_PATH_TT}/cetak-sys
@@ -77,8 +67,53 @@ InitializeFolders() {   	#INITIALIZE ALL NECESSARY DIRECTORIES
         [[ -d ${CETAK_PATH_CNF_MNT} ]] || mkdir -p -- ${CETAK_PATH_CNF}/mainnet         # Make Folder if non existant
         [[ -d ${CETAK_PATH_CNF_TNT} ]] || mkdir -p -- ${CETAK_PATH_CNF}/testnet         # Make Folder if non existant
 
-}				#INITIALIZE ALL NECESSARY DIRECTORIES
+}                               #INITIALIZE ALL NECESSARY DIRECTORIES
 ### -----------------------------
+
+
+### -----------------------------
+cnfFileCN() {			# CONF FILES
+
+	cnfFileChoice=$1
+
+        vrConfig="https://hydra.iohk.io/job/Cardano/cardano-node/cardano-deployment/latest-finished/download/1/${cnfFileChoice}-config.json"
+        vrByronGenesis="https://hydra.iohk.io/job/Cardano/cardano-node/cardano-deployment/latest-finished/download/1/${cnfFileChoice}-byron-genesis.json"
+        vrShelleyGenesis="https://hydra.iohk.io/job/Cardano/cardano-node/cardano-deployment/latest-finished/download/1/${cnfFileChoice}-shelley-genesis.json"
+        vrTopology="https://hydra.iohk.io/job/Cardano/cardano-node/cardano-deployment/latest-finished/download/1/${cnfFileChoice}-topology.json"
+
+                wget $vrConfig
+                wget $vrByronGenesis
+                wget $vrShelleyGenesis
+                wget $vrTopology
+
+}				# CONF FILES
+### -----------------------------
+# -----------------------------------------------
+InstallModeV2() {                                 # INSTALL MODE
+
+        echo
+        if ask "Should I Fetch configuration files?"; then # Only do something if you say Yes
+         case "$1" in
+                1)
+                 rm -fv ${CETAK_PATH_CNF_MNT}/*.json
+                 cd $CETAK_PATH_CNF_MNT
+		 cnfFileCN mainnet
+                ;;
+
+                2)
+                 rm -fv ${CETAK_PATH_CNF_TNT}/*.json
+                 cd $CETAK_PATH_CNF_TNT
+                 cnfFileCN testnet
+                ;;
+
+         *)
+            echo " Error $1 is'nt a good choice for InstallMode."
+            exit 1
+         esac
+        fi
+}                                               # INSTALL MODE
+# -----------------------------------------------
+
 
 # -------------------------------
 MAINNET(){                   	# MAINNET CONFIGURATION
@@ -149,7 +184,7 @@ InstallCMD() {
         for vCmd in "${cmdArray[@]}"
         do
 	if ! command -v "$vCmd" > /dev/null 2>&1
-	then
+	 then
 		read -p " Can't find $vCmd. Do you wish to install this program? " yn
 		case $yn in
     			[Yy]* ) nix-env -iA nixos.${vCmd};;
@@ -159,39 +194,6 @@ InstallCMD() {
 	fi
         done
 }
-
-# -----------------------------------------------
-InstallMode() {                                 # INSTALL MODE
-
-        echo " USER YOUR ATTENTION IS NEEDED " 
-        echo
-	if ask "Should I Fetch configuration files?"; then # Only do something if you say Yes
-         case "$1" in
-                1)
-         	 rm -fv ${CETAK_PATH_CNF_MNT}/*.json
-                 cd $CETAK_PATH_CNF_MNT
-                 wget $mnnetConfig
-                 wget $mnnetByronGenesis
-                 wget $mnnetShelleyGenesis
-                 wget $mnnetTopology
-                ;;
-
-                2)
-         	rm -fv ${CETAK_PATH_CNF_TNT}/*.json
-                 cd $CETAK_PATH_CNF_TNT
-                 wget $ttnetConfig
-                 wget $ttnetByronGenesis
-                 wget $ttnetShelleyGenesis
-                 wget $ttnetTopology
-                ;;
-
-         *)
-            echo " Error $1 is'nt a good choice for InstallMode."
-            exit 1
-         esac
-	fi
-}                                               # INSTALL MODE
-# -----------------------------------------------
 
 # -----------------------------------------------
 getCN() {					# NODE
@@ -218,13 +220,13 @@ NodeMaintenance() {                             # NODE
 	 then
           InitializeFolders
           InstallCMD
-          pkill cardano-node -SIGINT
           getCN
+          pkill cardano-node -SIGINT
 	 fi
 	 case "$1" in
         	1)
                  rm -rf ${CETAK_PATH_TT}/${MNT_NODE_LINK}
-		 InstallMode 1
+		 InstallModeV2 1
 		 cd ${CETAK_PATH_TT}/cardano-node
                  nix-build -A cardano-node -o ${CETAK_PATH_TT}/${MNT_NODE_LINK} # INSTALL MAINNET
                  #exit
@@ -232,7 +234,7 @@ NodeMaintenance() {                             # NODE
 
         	2)
          	 rm -rf ${CETAK_PATH_TT}/${TNT_NODE_LINK}
-                 InstallMode 2
+                 InstallModeV2 2
                  cd ${CETAK_PATH_TT}/cardano-node
                  nix-build -A cardano-node -o ${CETAK_PATH_TT}/${TNT_NODE_LINK} # INSTALL TESTNET
                  #exit
@@ -250,7 +252,7 @@ NodeMaintenance() {                             # NODE
          if ask "Should I install Cardano-cli?"; then # Only do something if you say Yes
           nix-build -A cardano-cli -o ${CETAK_PATH_TT}/cardano-cli-cetak
          fi
-	 if ask "A healthy machine needs a cleen up should I?"; then # Only do something if you say Yes
+	 if ask "A healthy machine needs a clean up should I?"; then # Only do something if you say Yes
           nix-collect-garbage -d
 	 fi
 	fi
@@ -337,9 +339,9 @@ do
 	echo "1. Install MainNet."
 	echo "2. Install TestNet."
         echo "3. Optional install mode."
-        echo "4. Default Tail."
-        echo "5. Launch MAINnet Node."
-        echo "6. Launch TESTnet Node."
+        echo "4. Launch MAINnet Node."
+        echo "5. Launch TESTnet Node."
+        echo "6. Default Tail."
         echo "7. SHUTDOWN"
 	echo "9. Exit"
         # get input from the user
@@ -359,19 +361,21 @@ do
                         read -p "Press [Enter] key to continue..." readEnterKey
                         ;;
                 4)
-                        ask "Default Tail?" && MultiChoiceNode 1 # Only do something if you say Yes
-                        read -p "Press [Enter] key to continue..." readEnterKey
-                        ;;
-                5)
                         ask "Launch MAINnet Node?" && MAINNET # Only do something if you say Yes
 			exit
                         #read -p "Press [Enter] key to continue..." readEnterKey
                         ;;
-                6)
+                5)
                         ask "Launch TESTnet Node?" && TESTNET # Only do something if you say Yes
                         exit
                         #read -p "Press [Enter] key to continue..." readEnterKey
                         ;;
+
+                6)
+                        ask "Default Tail?" && MultiChoiceNode 1 # Only do something if you say Yes
+                        read -p "Press [Enter] key to continue..." readEnterKey
+                        ;;
+
                 7)
                         ask "SHUTDOWN" && MultiChoiceNode 2 # Only do something if you say Yes
                         exit
