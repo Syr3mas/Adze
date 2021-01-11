@@ -3,6 +3,7 @@
 ### -------------------------
 ### ----TRACETAKE------------
 ### -------------------------
+
 ### Cardano-node Management Cli for NixOS ###
 
 
@@ -10,175 +11,121 @@ CETAK_PATH=$(eval echo "~$USER")
 
 MAIN_FOLDER=adze  ### Important to keep
 
-NODE_IP=127.0.0.1 # NODE_IP
-NODE_PORT=3001 # NODE_PORT
+NODE_IP="127.0.0.1" # NODE_IP
+NODE_PORT=3010 # NODE_PORT
+MTRCS_PORT=12798 # METRICS
+NODES_NAME=Rhesus #NAME OF NODE 
 
 CN_GIT_WEB="https://github.com/input-output-hk/cardano-node.git"
 CNtag=1.24.2					# Git Tag
 
-### -----------------------------
+						# MAIN VARIABLES
+# -----------------------------------------------
 
-MNT_NODE_LINK="mainnet-node-internal"	# Name of autobuilt script link mainnet
-TNT_NODE_LINK="testnet-node-internal"	# Name of autobuilt script link testnet
-
-MNT_TAIL_FILE="cnRelayMainNet.log"
-TNT_TAIL_FILE="cnRelayTestNet.log"
-
-### -----------------------------
-
-### -----------------------------
-#INITIALIZE ALL NECESSARY DIRECTORIES
+# -----------------------------------------------
+						# INITIALIZE ALL NECESSARY DIRECTORIES
 
         CETAK_PATH_TT=${CETAK_PATH}/${MAIN_FOLDER}
-        CETAK_PATH_SYS=${CETAK_PATH_TT}/cetak-sys
-        CETAK_PATH_SH=${CETAK_PATH_SYS}/SH
         CETAK_PATH_CNF=${CETAK_PATH_TT}/CONF
-        CETAK_PATH_SNM=${CETAK_PATH_TT}/state-node-mainnet
-        CETAK_PATH_SNT=${CETAK_PATH_TT}/state-node-testnet
-        CETAK_PATH_DB=${CETAK_PATH_SNM}/db-mainnet
-        CETAK_PATH_TDB=${CETAK_PATH_SNM}/db-testnet
-        #----------------------------------------------------------------------
         CETAK_PATH_TMP=${CETAK_PATH_TT}/TMP_FOLDER
         #----------------------------------------------------------------------
-        CETAK_PATH_CNF_MNT=${CETAK_PATH_CNF}/mainnet
-        CETAK_PATH_CNF_TNT=${CETAK_PATH_CNF}/testnet
+        NODERUNNER_STATE=${CETAK_PATH_TT}/state-node-noderunner
+        NODERUNNER_DB=${NODERUNNER_STATE}/db-noderunner
+        NODERUNNER_CONF=${CETAK_PATH_CNF}
 
-#INITIALIZE ALL NECESSARY DIRECTORIES
-### -----------------------------
+						# INITIALIZE ALL NECESSARY DIRECTORIES
+# -----------------------------------------------
 
-### -----------------------------
-### DIRECTORY INFORMATION
-### -----------------------------
-
-### -----------------------------
-InitializeFolders() {           #INITIALIZE ALL NECESSARY DIRECTORIES
+# -----------------------------------------------
+InitializeFolders() {           		# INITIALIZE ALL NECESSARY DIRECTORIES
 
         [[ -d ${CETAK_PATH_TT} ]] || mkdir -p -- ${CETAK_PATH}/${MAIN_FOLDER}
-        [[ -d ${CETAK_PATH_SYS} ]] || mkdir -p -- ${CETAK_PATH_TT}/cetak-sys
-        [[ -d ${CETAK_PATH_SH} ]] || mkdir -p -- ${CETAK_PATH_SYS}/SH
         [[ -d ${CETAK_PATH_CNF} ]] || mkdir -p -- ${CETAK_PATH_TT}/CONF
-        [[ -d ${CETAK_PATH_SNM} ]] || mkdir -p -- ${CETAK_PATH_TT}/state-node-mainnet
-        [[ -d ${CETAK_PATH_SNT} ]] || mkdir -p -- ${CETAK_PATH_TT}/state-node-testnet
-        [[ -d ${CETAK_PATH_DB} ]] || mkdir -p -- ${CETAK_PATH_SNM}/db-mainnet
-        [[ -d ${CETAK_PATH_TDB} ]] || mkdir -p -- ${CETAK_PATH_SNM}/db-testnet
-        #----------------------------------------------------------------------
         [[ -d ${CETAK_PATH_TMP} ]] || mkdir -p -- ${CETAK_PATH_TT}/TMP_FOLDER
         #----------------------------------------------------------------------
-        [[ -d ${CETAK_PATH_CNF_MNT} ]] || mkdir -p -- ${CETAK_PATH_CNF}/mainnet         # Make Folder if non existant
-        [[ -d ${CETAK_PATH_CNF_TNT} ]] || mkdir -p -- ${CETAK_PATH_CNF}/testnet         # Make Folder if non existant
+        [[ -d ${NODERUNNER_STATE} ]] || mkdir -p -- ${CETAK_PATH_TT}/state-node-noderunner
+        [[ -d ${NODERUNNER_DB} ]] || mkdir -p -- ${NODERUNNER_STATE}/db-noderunner
 
-}                               #INITIALIZE ALL NECESSARY DIRECTORIES
-### -----------------------------
-
-
-### -----------------------------
-cnfFileCN() {			# CONF FILES
-
-	cnfFileChoice=$1
-
-        vrConfig="https://hydra.iohk.io/job/Cardano/cardano-node/cardano-deployment/latest-finished/download/1/${cnfFileChoice}-config.json"
-        vrByronGenesis="https://hydra.iohk.io/job/Cardano/cardano-node/cardano-deployment/latest-finished/download/1/${cnfFileChoice}-byron-genesis.json"
-        vrShelleyGenesis="https://hydra.iohk.io/job/Cardano/cardano-node/cardano-deployment/latest-finished/download/1/${cnfFileChoice}-shelley-genesis.json"
-        vrTopology="https://hydra.iohk.io/job/Cardano/cardano-node/cardano-deployment/latest-finished/download/1/${cnfFileChoice}-topology.json"
-
-                wget $vrConfig
-                wget $vrByronGenesis
-                wget $vrShelleyGenesis
-                wget $vrTopology
-
-}				# CONF FILES
-### -----------------------------
+}                               		# INITIALIZE ALL NECESSARY DIRECTORIES
 # -----------------------------------------------
-InstallModeV2() {                                 # INSTALL MODE
+
+# -----------------------------------------------
+cnfFileCN() {					# CONF FILES
+
+        local cnfFileChoice=$1
+        echo
+        if ask " Should I Fetch ${cnfFileChoice} configuration files?" N; then # Only do something if you say Yes
+        	rm -fv ${NODERUNNER_CONF}/*.json
+		cd ${NODERUNNER_CONF}
+
+		local HTTP_CONF="https://hydra.iohk.io/job/Cardano/cardano-node/cardano-deployment/latest-finished/download/1"
+        	wget ${HTTP_CONF}/${cnfFileChoice}-config.json"
+        	wget ${HTTP_CONF}/${cnfFileChoice}-byron-genesis.json"
+        	wget ${HTTP_CONF}/${cnfFileChoice}-shelley-genesis.json"
+        	wget ${HTTP_CONF}/${cnfFileChoice}-topology.json"
+        fi
+
+}						# CONF FILES
+# -----------------------------------------------
+
+# -----------------------------------------------
+metricsQueryTip() {                    		# NODE
+
+	curl -s http://$NODE_IP:$MTRCS_PORT/metrics > $CETAK_PATH_TMP/metrics.json | jq '.'
+	if [ -f "$CETAK_PATH_TMP/metrics.json" ]; then
+        	CETAK_BLOCK=$(sed -n -e 's/^.*cardano_node_ChainDB_metrics_blockNum_int //p' $CETAK_PATH_TMP/metrics.json)
+        	CETAK_SLOT=$(sed -n -e 's/^.*cardano_node_ChainDB_metrics_slotNum_int //p' $CETAK_PATH_TMP/metrics.json)
+        	CETAK_SLOT_EPOCH=$(sed -n -e 's/^.*cardano_node_ChainDB_metrics_slotInEpoch_int //p' $CETAK_PATH_TMP/metrics.json)
+        	CETAK_EPOCH=$(sed -n -e 's/^.*cardano_node_ChainDB_metrics_epoch_int //p' $CETAK_PATH_TMP/metrics.json)
+        	CETAK_PID=$(sed -n -e 's/^.*cardano_node_metrics_Sys_Pid_int //p' $CETAK_PATH_TMP/metrics.json)
+        	CETAK_STATUS=$(pgrep -x cardano-node >/dev/null && echo "RUNNING" || echo "OFFLINE")
+        	#CETAK_CN_VERS=$($CCLI version | grep cli)
+	fi
+
+}                                               # NODE
+# -----------------------------------------------
+
+
+# -----------------------------------------------
+NODERUNNER() {                  		# NODERUNNER CONFIGURATION
+
+	local NR_CHOICE=$1
+
+	local NODERUNNER_TAIL="${NR_CHOICE}tail.log"
+	local NODERUNNER_LINK="${NR_CHOICE}-node-internal"
+
+        local LAUNCHv2="${CETAK_PATH_TT}/${NODERUNNER_LINK}/bin/cardano-node"
+        local CONFIG="${NODERUNNER_CONF}/${NR_CHOICE}-config.json" # CONF
+
+	cnfFileCN ${NR_CHOICE}
 
         echo
-        if ask "Should I Fetch configuration files?"; then # Only do something if you say Yes
-         case "$1" in
-                1)
-                 rm -fv ${CETAK_PATH_CNF_MNT}/*.json
-                 cd $CETAK_PATH_CNF_MNT
-		 cnfFileCN mainnet
-                ;;
+        echo " LAUNCH command: $LAUNCHv2"
+        echo " CONFIG command: $CONFIG"
+        echo
 
-                2)
-                 rm -fv ${CETAK_PATH_CNF_TNT}/*.json
-                 cd $CETAK_PATH_CNF_TNT
-                 cnfFileCN testnet
-                ;;
+        [[ -d ${NODERUNNER_STATE} ]] || mkdir -p -- ${CETAK_PATH_TT}/state-node-noderunner
+        [[ -d ${NODERUNNER_DB} ]] || mkdir -p -- ${NODERUNNER_STATE}/db-noderunner
 
-         *)
-            echo " Error $1 is'nt a good choice for InstallMode."
-            exit 1
-         esac
-        fi
-}                                               # INSTALL MODE
+        rm ${NODERUNNER_STATE}/${NR_CHOICE}-node.socket
+        rm ${CETAK_PATH_TMP}/${NODERUNNER_TAIL}
+
+        nohup ${LAUNCHv2} run \
+                --topology ${NODERUNNER_CONF}/${NR_CHOICE}-topology.json \
+                --database-path ${NODERUNNER_DB}/${NR_CHOICE}-db \
+                --socket-path ${NODERUNNER_STATE}/${NR_CHOICE}-node.socket \
+                --config ${CONFIG} \
+                --host-addr ${NODE_IP} \
+                --port ${NODE_PORT} \
+                --validate-db \
+                &> ${CETAK_PATH_TMP}/${NODERUNNER_TAIL} &
+
+        exit
+}                               		# NODERUNNER CONFIGURATION
 # -----------------------------------------------
 
-
-# -------------------------------
-MAINNET(){                   	# MAINNET CONFIGURATION
-
-local vMnTOPOLOGY="$CETAK_PATH_CNF_MNT/mainnet-topology.json" # TOPOLOGY
-local vMnDATABASE="${CETAK_PATH_SNM}/db-mainnet" # DATABASE
-local vMnSOCKET="${CETAK_PATH_SNM}/node.socket" # SOCKET
-
-local LAUNCHv2="${CETAK_PATH_TT}/${MNT_NODE_LINK}/bin/cardano-node"
-local vMnCONFIG="${CETAK_PATH_CNF_MNT}/mainnet-config.json" # CONF
-
-echo " LAUNCHv2: $LAUNCHv2"
-echo ""
-echo " vMnCONFIG: $vMnCONFIG"
-echo ""
-
-rm ${CETAK_PATH_TMP}/${MNT_TAIL_FILE}
-
-nohup ${LAUNCHv2} run \
-        --topology ${vMnTOPOLOGY} \
-        --database-path ${vMnDATABASE} \
-        --socket-path ${vMnSOCKET} \
-        --config ${vMnCONFIG} \
-        --host-addr ${NODE_IP} \
-        --port ${NODE_PORT} \
-        --validate-db \
-        &> ${CETAK_PATH_TMP}/${MNT_TAIL_FILE} &
-
-}                               # MAINNET CONFIGURATION
-# -------------------------------
-
-# -------------------------------
-TESTNET() {			# TESTNET CONFIGURATION
-
-local vTnTOPOLOGY="$CETAK_PATH_CNF_TNT/testnet-topology.json" # TOPOLOGY
-local vTnDATABASE="${CETAK_PATH_SNT}/db-testnet" # DATABASE
-local vTnSOCKET="${CETAK_PATH_SNT}/node.socket" # SOCKET
-
-local LAUNCHv2="${CETAK_PATH_TT}/${TNT_NODE_LINK}/bin/cardano-node"
-local vTnCONFIG="${CETAK_PATH_CNF_TNT}/testnet-config.json" # CONF
-
-echo " LAUNCHv2: $LAUNCHv2"
-echo ""
-echo " vTnCONFIG: $vTnCONFIG"
-echo ""
-
-rm ${CETAK_PATH_TMP}/${TNT_TAIL_FILE}
-
-nohup ${LAUNCHv2} run \
-        --topology ${vTnTOPOLOGY} \
-        --database-path ${vTnDATABASE} \
-        --socket-path ${vTnSOCKET} \
-        --config ${vTnCONFIG} \
-        --host-addr ${NODE_IP} \
-        --port ${NODE_PORT} \
-        --validate-db \
-        &> ${CETAK_PATH_TMP}/${TNT_TAIL_FILE} &
-
-}				# TESTNET CONFIGURATION
-# -------------------------------
-
-### -----------------------------
-### -----------------------------
-
-InstallCMD() {
+# -----------------------------------------------
+InstallCMD() {					# Required CMD
 
         cmdArray=( curl jq git wget tmux htop )
         for vCmd in "${cmdArray[@]}"
@@ -193,10 +140,11 @@ InstallCMD() {
 		esac
 	fi
         done
-}
+}						# Required CMD
+# -----------------------------------------------
 
 # -----------------------------------------------
-getCN() {					# NODE
+getCN() {					# CARDANO NODE
 
 	rm -rf $CETAK_PATH_TT/cardano-node
 	cd $CETAK_PATH_TT
@@ -208,89 +156,136 @@ getCN() {					# NODE
 	git checkout tags/${CNtag}
 	git submodule update
 
-}						# NODE
+}						# CARDANO NODE
 # -----------------------------------------------
 
 # -----------------------------------------------
-NodeMaintenance() {                             # NODE
+NodeMaintenance() {                             # MAINTENANCE NODE
 
-        # Only do something if you say Yes
-        if ask "Attention this process will install the Node and remove any previous installation!"; then
-	 if [ $1 -lt 2 ]
-	 then
-          InitializeFolders
-          InstallCMD
-          getCN
-          pkill cardano-node -SIGINT
-	 fi
-	 case "$1" in
-        	1)
-                 rm -rf ${CETAK_PATH_TT}/${MNT_NODE_LINK}
-		 InstallModeV2 1
-		 cd ${CETAK_PATH_TT}/cardano-node
-                 nix-build -A cardano-node -o ${CETAK_PATH_TT}/${MNT_NODE_LINK} # INSTALL MAINNET
-                 #exit
-            	;;
-
-        	2)
-         	 rm -rf ${CETAK_PATH_TT}/${TNT_NODE_LINK}
-                 InstallModeV2 2
-                 cd ${CETAK_PATH_TT}/cardano-node
-                 nix-build -A cardano-node -o ${CETAK_PATH_TT}/${TNT_NODE_LINK} # INSTALL TESTNET
-                 #exit
-            	;;
-
-                9)
-		 echo " Test Option "
-                 exit
-                ;;
-
-            *)
-            echo " Error $1 is'nt a good choice."
-            exit 1
-	 esac
-         if ask "Should I install Cardano-cli?"; then # Only do something if you say Yes
-          nix-build -A cardano-cli -o ${CETAK_PATH_TT}/cardano-cli-cetak
-         fi
-	 if ask "A healthy machine needs a clean up should I?"; then # Only do something if you say Yes
-          nix-collect-garbage -d
-	 fi
+	local ENV_NODE=testnet
+	ask " Attention! Do you want to Install the $ENV_NODE environement?" || ENV_NODE=mainnet
+        if ask " Attention! This process will remove any previous $ENV_NODE installation in Folder ${MAIN_FOLDER}!" Y; then
+        	pkill cardano-node -SIGINT
+          	InitializeFolders
+          	InstallCMD
+          	getCN
+	  	local NODERUNNER_LINK=$ENV_NODE-node-internal
+                rm -rf ${CETAK_PATH_TT}/${NODERUNNER_LINK}
+                cd ${CETAK_PATH_TT}/cardano-node
+                nix-build -A cardano-node -o ${CETAK_PATH_TT}/${NODERUNNER_LINK}
+		clear
+        	if ask " Attention! Should I install Cardano-cli?" N; then # Only do something if you say Yes
+                	nix-build -A cardano-cli -o ${CETAK_PATH_TT}/cardano-cli-cetak
+        	fi
+		clear
+		ask "Attention! Do you want to collect garbage? Choose No if you haven't a clue." && nix-collect-garbage -d
 	fi
-}						# NODE
+}						# MAINTENANCE NODE
 # -----------------------------------------------
 
 # -----------------------------------------------
 MultiChoiceNode() {                             # NODE
 
-         case "$1" in
+         case $1 in
                 1)
 			# Default to Yes if the user presses enter without giving an answer:
-			if ask "Are we running Mainnet Mode?" Y; then
-    				tail -f ${CETAK_PATH_TMP}/${MNT_TAIL_FILE}
+			if ask " Are we tailing TESTNET?" Y; then
+				tail -f ${CETAK_PATH_TMP}/testnettail.log
+                                # tail -f ${CETAK_PATH_TMP}/${TNT_TAIL_FILE}
 			else
-    				tail -f ${CETAK_PATH_TMP}/${TNT_TAIL_FILE}
+                                tail -f ${CETAK_PATH_TMP}/mainnettail.log
+                                # tail -f ${CETAK_PATH_TMP}/${MNT_TAIL_FILE}
 			fi
                 ;;
                 2)
-                	echo "Shutting down Node"
+                	echo " Shutting down Node"
                 	pkill cardano-node -SIGINT
 			# Only do something if you say Yes
-			if ask "Do you want to shutdown the system?"; then
-    			sudo shutdown
-			fi
+			MultiChoiceNode 3
+                ;;
+                3)
+                        if ask " Do you want to shutdown the system?" N; then
+                        sudo shutdown
+                        fi
                 ;;
 
          *)
-            echo " Error $1 is'nt a good choice."
+            echo " Error $1 isn't a good choice."
             exit 1
 
          esac
+
 }                                               # NODE
 # -----------------------------------------------
 
 
+### -----------------------------
+### LAUNCH OR SHUTING NODE
+### -----------------------------
+fctn_activation() {	#LAUNCH OR SHUTDOWN CETAK
+        echo " ### INVOKING ${NODES_NAME} OPTIONS ###"
+        echo
+        if [[ $1 -eq 1 ]]; then echo -n " Launch ${NODES_NAME}? [yes or no]"; else echo  -n " Shutdown ${NODES_NAME}? [yes or no]"; fi
+        read yno
+        case $yno in
+                [yY] | [yY][Ee][Ss] )
+                        if [[ $1 -eq 1 ]]; then 
+                        # Default to Yes if the user presses enter without giving an answer:
+                        	if ask " Are we launching on the *** TESTNET *** ?" Y; then
+                                	NODERUNNER testnet #TESTNET
+                        	else
+					echo " You have chosen MAINNET."
+					sleep 5
+                                	NODERUNNER mainnet #MAINNET
+                        	fi
+
+			else 
+				MultiChoiceNode 2 
+			fi
+                break
+                ;;
+                [nN] | [n|N][O|o] )
+
+                        if [[ $1 -eq 1 ]]; then MultiChoiceNode 3 exit 1; fi   #NODE MODE
+                break
+                ;;
+        *) echo " Invalid input"
+        ;;
+        esac
+}
+
+### -----------------------------
+
+### -----------------------------
+### NODE STATUS
+### -----------------------------
+cetak_status() {
+	metricsQueryTip
+        clear
+        case ${CETAK_STATUS} in
+        	RUNNING)
+                        echo " STATUS           : $CETAK_STATUS "
+                        echo " EPOCH            : $CETAK_EPOCH "
+                        echo " BLOCK NUM        : $CETAK_BLOCK "
+                        echo " SLOT EPOCH       : $CETAK_SLOT_EPOCH "
+                        echo " SLOT             : $CETAK_SLOT "
+                        echo
+			if [[ $1 -eq 0 ]]; then fctn_activation $1 exit 1; fi 	#NODE MODE
+                ;;
+                OFFLINE)
+                        echo " ### ---- STATUS: ${CETAK_STATUS} ---- ###"
+			fctn_activation 1
+                ;;
+                *)
+                        echo " ### ----  ERROR  ---- ###"
+                ;;
+        esac
+}
+
+### -------------------------
+
 # -----------------------------------------------
-ask() {						# NODE
+ask() {						# PROMPT NODE
 
     local prompt default reply
 
@@ -325,69 +320,69 @@ ask() {						# NODE
         esac
 
     done
+}						# PROMPT NODE
+# -----------------------------------------------
+
+# -----------------------------------------------
+MenuRerun() {					# NODE
+	vSKIPMENU=0
+        read -p " Press [Enter] key to continue..." readEnterKey
 }						# NODE
 # -----------------------------------------------
-while :
+
+vSKIPMENU=$1 # SKIP MENU OPTION
+
+# -----------------------------------------------
+while :						# MAIN NODE
 do
 	clear
         # display menu
         echo "Today is $(date)"
 	echo "Server Name - $(hostname)"
+        echo "IP - $NODE_IP"
+        echo "PORT - $NODE_PORT"
 	echo "-------------------------------"
 	echo "     M A I N - M E N U"
 	echo "-------------------------------"
-	echo "1. Install MainNet."
-	echo "2. Install TestNet."
-        echo "3. Optional install mode."
-        echo "4. Launch MAINnet Node."
-        echo "5. Launch TESTnet Node."
-        echo "6. Default Tail."
-        echo "7. SHUTDOWN"
+	echo "1. Install Cardano."
+        echo "2. Status of $NODES_NAME"
+        echo "3. Default Tail."
+        echo "8. HTOP"
 	echo "9. Exit"
         # get input from the user
-	read -p "Enter your choice [ 1 - 7 ] " choice
+
+	vINT='^[1-9]+$'
+        if ! [[ $vSKIPMENU =~ $vINT ]] || [[ -z "$vSKIPMENU" ]] ; then
+        	read -p " Enter your choice [ 1 - 9 ] " choice
+        else
+        	choice=$vSKIPMENU
+		echo " OPTION $vSKIPMENU SELECTED"
+        fi
         # make decision using case..in..esac
 	case $choice in
 		1)
-			ask "Install Mainnet?" && NodeMaintenance 1 # Only do something if you say Yes
-			read -p "Press [Enter] key to continue..." readEnterKey
+			ask " Ready to install Cardano-node?" Y && NodeMaintenance # Only do something if you say Yes
+			MenuRerun
 			;;
-		2)
-			ask "Install TestNet?" && NodeMaintenance 2 # Only do something if you say Yes
-			read -p "Press [Enter] key to continue..." readEnterKey
-			;;
+                2)
+                        ask " Status of Node designated $NODES_NAME?" Y && cetak_status 0 # Only do something if you say Yes
+			MenuRerun
+                        ;;
                 3)
-                        ask "This is the optional install mode!" && NodeMaintenance 9 # Only do something if you say Yes
-                        read -p "Press [Enter] key to continue..." readEnterKey
-                        ;;
-                4)
-                        ask "Launch MAINnet Node?" && MAINNET # Only do something if you say Yes
-			exit
-                        #read -p "Press [Enter] key to continue..." readEnterKey
-                        ;;
-                5)
-                        ask "Launch TESTnet Node?" && TESTNET # Only do something if you say Yes
-                        exit
-                        #read -p "Press [Enter] key to continue..." readEnterKey
+                        ask " Show default Tail?" Y && MultiChoiceNode 1 # Only do something if you say Yes
+			MenuRerun
                         ;;
 
-                6)
-                        ask "Default Tail?" && MultiChoiceNode 1 # Only do something if you say Yes
-                        read -p "Press [Enter] key to continue..." readEnterKey
-                        ;;
+		8)	htop -u $(whoami)
+			MenuRerun
+			;;
 
-                7)
-                        ask "SHUTDOWN" && MultiChoiceNode 2 # Only do something if you say Yes
-                        exit
-                        #read -p "Press [Enter] key to continue..." readEnterKey
-                        ;;
-		9)
-			echo "Be Seing you!"
+		9)	echo " Be Seing you!"
 			exit 0
 			;;
 		*)
-			echo "Sorry: Invalid option..."
-			read -p "Press [Enter] key to continue..." readEnterKey
+			echo " Sorry: Invalid option..."
+			MenuRerun
 			;;
 	esac
 
