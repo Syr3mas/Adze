@@ -9,7 +9,7 @@
 
 CETAK_PATH=$(eval echo "~$USER")
 
-MAIN_FOLDER=relic  ### Important to keep
+MAIN_FOLDER=adze  ### Dragons in the main folder
 
 NODE_IP="127.0.0.1" # NODE_IP
 NODE_PORT=3010 # NODE_PORT
