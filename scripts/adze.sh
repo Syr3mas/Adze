@@ -9,7 +9,7 @@
 
 CETAK_PATH=$(eval echo "~$USER")
 
-MAIN_FOLDER=adze  ### Important to keep
+MAIN_FOLDER=relic  ### Important to keep
 
 NODE_IP="127.0.0.1" # NODE_IP
 NODE_PORT=3010 # NODE_PORT
@@ -59,10 +59,10 @@ cnfFileCN() {					# CONF FILES
 		cd ${NODERUNNER_CONF}
 
 		local HTTP_CONF="https://hydra.iohk.io/job/Cardano/cardano-node/cardano-deployment/latest-finished/download/1"
-        	wget ${HTTP_CONF}/${cnfFileChoice}-config.json"
-        	wget ${HTTP_CONF}/${cnfFileChoice}-byron-genesis.json"
-        	wget ${HTTP_CONF}/${cnfFileChoice}-shelley-genesis.json"
-        	wget ${HTTP_CONF}/${cnfFileChoice}-topology.json"
+        	wget ${HTTP_CONF}/${cnfFileChoice}-config.json
+        	wget ${HTTP_CONF}/${cnfFileChoice}-byron-genesis.json
+        	wget ${HTTP_CONF}/${cnfFileChoice}-shelley-genesis.json
+        	wget ${HTTP_CONF}/${cnfFileChoice}-topology.json
         fi
 
 }						# CONF FILES
@@ -71,6 +71,7 @@ cnfFileCN() {					# CONF FILES
 # -----------------------------------------------
 metricsQueryTip() {                    		# NODE
 
+	rm $CETAK_PATH_TMP/metrics.json
 	curl -s http://$NODE_IP:$MTRCS_PORT/metrics > $CETAK_PATH_TMP/metrics.json | jq '.'
 	if [ -f "$CETAK_PATH_TMP/metrics.json" ]; then
         	CETAK_BLOCK=$(sed -n -e 's/^.*cardano_node_ChainDB_metrics_blockNum_int //p' $CETAK_PATH_TMP/metrics.json)
@@ -92,15 +93,15 @@ NODERUNNER() {                  		# NODERUNNER CONFIGURATION
 	local NR_CHOICE=$1
 
 	local NODERUNNER_TAIL="${NR_CHOICE}tail.log"
-	local NODERUNNER_LINK="${NR_CHOICE}-node-internal"
+	local NODERUNNER_LINK="${NR_CHOICE}-node-manuel"
 
-        local LAUNCHv2="${CETAK_PATH_TT}/${NODERUNNER_LINK}/bin/cardano-node"
+        local LAUNCH="${CETAK_PATH_TT}/${NODERUNNER_LINK}/bin/cardano-node run"
         local CONFIG="${NODERUNNER_CONF}/${NR_CHOICE}-config.json" # CONF
 
 	cnfFileCN ${NR_CHOICE}
 
         echo
-        echo " LAUNCH command: $LAUNCHv2"
+        echo " LAUNCH command: $LAUNCH"
         echo " CONFIG command: $CONFIG"
         echo
 
@@ -110,7 +111,7 @@ NODERUNNER() {                  		# NODERUNNER CONFIGURATION
         rm ${NODERUNNER_STATE}/${NR_CHOICE}-node.socket
         rm ${CETAK_PATH_TMP}/${NODERUNNER_TAIL}
 
-        nohup ${LAUNCHv2} run \
+        nohup ${LAUNCH} \
                 --topology ${NODERUNNER_CONF}/${NR_CHOICE}-topology.json \
                 --database-path ${NODERUNNER_DB}/${NR_CHOICE}-db \
                 --socket-path ${NODERUNNER_STATE}/${NR_CHOICE}-node.socket \
@@ -163,7 +164,7 @@ getCN() {					# CARDANO NODE
 NodeMaintenance() {                             # MAINTENANCE NODE
 
 	local ENV_NODE=testnet
-	ask " Attention! Do you want to Install the $ENV_NODE environement?" || ENV_NODE=mainnet
+	ask " Attention! Do you want to Install the $ENV_NODE environement?" Y || ENV_NODE=mainnet
         if ask " Attention! This process will remove any previous $ENV_NODE installation in Folder ${MAIN_FOLDER}!" Y; then
         	pkill cardano-node -SIGINT
           	InitializeFolders
@@ -178,7 +179,7 @@ NodeMaintenance() {                             # MAINTENANCE NODE
                 	nix-build -A cardano-cli -o ${CETAK_PATH_TT}/cardano-cli-cetak
         	fi
 		clear
-		ask "Attention! Do you want to collect garbage? Choose No if you haven't a clue." && nix-collect-garbage -d
+		ask "Attention! Do you want to collect garbage? Choose No if you haven't a clue." N && nix-collect-garbage -d
 	fi
 }						# MAINTENANCE NODE
 # -----------------------------------------------
@@ -207,6 +208,7 @@ MultiChoiceNode() {                             # NODE
                         if ask " Do you want to shutdown the system?" N; then
                         sudo shutdown
                         fi
+			exit
                 ;;
 
          *)
