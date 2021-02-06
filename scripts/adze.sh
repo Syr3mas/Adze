@@ -11,13 +11,15 @@ CETAK_PATH=$(eval echo "~$USER")
 
 MAIN_FOLDER=adze  ### Dragons in the main folder
 
-NODE_IP="127.0.0.1" # NODE_IP
+NODE_IP=$(ifconfig | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p') # NODE_IP
+MTRCS_IP="127.0.0.1" # MTRCS_IP
+
 NODE_PORT=3010 # NODE_PORT
 MTRCS_PORT=12798 # METRICS
 NODES_NAME=Rhesus #NAME OF NODE 
 
 CN_GIT_WEB="https://github.com/input-output-hk/cardano-node.git"
-CNtag=1.24.2					# Git Tag
+CNtag=1.25.1					# Git Tag
 
 						# MAIN VARIABLES
 # -----------------------------------------------
@@ -72,7 +74,7 @@ cnfFileCN() {					# CONF FILES
 metricsQueryTip() {                    		# NODE
 
 	rm $CETAK_PATH_TMP/metrics.json
-	curl -s http://$NODE_IP:$MTRCS_PORT/metrics > $CETAK_PATH_TMP/metrics.json | jq '.'
+	curl -s http://$MTRCS_IP:$MTRCS_PORT/metrics > $CETAK_PATH_TMP/metrics.json | jq '.'
 	if [ -f "$CETAK_PATH_TMP/metrics.json" ]; then
         	CETAK_BLOCK=$(sed -n -e 's/^.*cardano_node_ChainDB_metrics_blockNum_int //p' $CETAK_PATH_TMP/metrics.json)
         	CETAK_SLOT=$(sed -n -e 's/^.*cardano_node_ChainDB_metrics_slotNum_int //p' $CETAK_PATH_TMP/metrics.json)
@@ -151,8 +153,8 @@ getCN() {					# CARDANO NODE
 	cd $CETAK_PATH_TT
 	git clone --recurse-submodules $CN_GIT_WEB
 	cd $CETAK_PATH_TT/cardano-node
-	git fetch --all --tags
-	git tag
+	# git fetch --all --tags
+	# git tag
 
 	git checkout tags/${CNtag}
 	git submodule update
