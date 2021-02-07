@@ -76,10 +76,10 @@ metricsQueryTip() {                    		# NODE
 	rm $CETAK_PATH_TMP/metrics.json
 	curl -s http://$MTRCS_IP:$MTRCS_PORT/metrics > $CETAK_PATH_TMP/metrics.json | jq '.'
 	if [ -f "$CETAK_PATH_TMP/metrics.json" ]; then
-        	CETAK_BLOCK=$(sed -n -e 's/^.*cardano_node_ChainDB_metrics_blockNum_int //p' $CETAK_PATH_TMP/metrics.json)
-        	CETAK_SLOT=$(sed -n -e 's/^.*cardano_node_ChainDB_metrics_slotNum_int //p' $CETAK_PATH_TMP/metrics.json)
-        	CETAK_SLOT_EPOCH=$(sed -n -e 's/^.*cardano_node_ChainDB_metrics_slotInEpoch_int //p' $CETAK_PATH_TMP/metrics.json)
-        	CETAK_EPOCH=$(sed -n -e 's/^.*cardano_node_ChainDB_metrics_epoch_int //p' $CETAK_PATH_TMP/metrics.json)
+        	CETAK_BLOCK=$(sed -n -e 's/^.*cardano_node_metrics_blockNum_int //p' $CETAK_PATH_TMP/metrics.json)
+        	CETAK_SLOT=$(sed -n -e 's/^.*cardano_node_metrics_slotNum_int //p' $CETAK_PATH_TMP/metrics.json)
+        	CETAK_SLOT_EPOCH=$(sed -n -e 's/^.*cardano_node_metrics_slotInEpoch_int //p' $CETAK_PATH_TMP/metrics.json)
+        	CETAK_EPOCH=$(sed -n -e 's/^.*cardano_node_metrics_epoch_int //p' $CETAK_PATH_TMP/metrics.json)
         	CETAK_PID=$(sed -n -e 's/^.*cardano_node_metrics_Sys_Pid_int //p' $CETAK_PATH_TMP/metrics.json)
         	CETAK_STATUS=$(pgrep -x cardano-node >/dev/null && echo "RUNNING" || echo "OFFLINE")
         	#CETAK_CN_VERS=$($CCLI version | grep cli)
@@ -102,11 +102,6 @@ NODERUNNER() {                  		# NODERUNNER CONFIGURATION
 
 	cnfFileCN ${NR_CHOICE}
 
-        echo
-        echo " LAUNCH command: $LAUNCH"
-        echo " CONFIG command: $CONFIG"
-        echo
-
         [[ -d ${NODERUNNER_STATE} ]] || mkdir -p -- ${CETAK_PATH_TT}/state-node-noderunner
         [[ -d ${NODERUNNER_DB} ]] || mkdir -p -- ${NODERUNNER_STATE}/db-noderunner
 
@@ -123,6 +118,11 @@ NODERUNNER() {                  		# NODERUNNER CONFIGURATION
                 --validate-db \
                 &> ${CETAK_PATH_TMP}/${NODERUNNER_TAIL} &
 
+        echo
+        echo " LAUNCH command: $LAUNCH"
+        echo " CONFIG command: $CONFIG"
+        echo
+
         exit
 }                               		# NODERUNNER CONFIGURATION
 # -----------------------------------------------
@@ -138,7 +138,7 @@ InstallCMD() {					# Required CMD
 		read -p " Can't find $vCmd. Do you wish to install this program? " yn
 		case $yn in
     			[Yy]* ) nix-env -iA nixos.${vCmd};;
-    			[Nn]* ) exit;;
+    			[Nn]* ) continue;;
 			* ) echo " Please answer yes or no. ";;
 		esac
 	fi
