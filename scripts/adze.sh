@@ -95,7 +95,7 @@ NODERUNNER() {                  		# NODERUNNER CONFIGURATION
 	local NR_CHOICE=$1
 
 	local NODERUNNER_TAIL="${NR_CHOICE}tail.log"
-	local NODERUNNER_LINK="${NR_CHOICE}-node-manuel"
+	local NODERUNNER_LINK="${NR_CHOICE}-node-manual"
 
         local LAUNCH="${CETAK_PATH_TT}/${NODERUNNER_LINK}/bin/cardano-node run"
         local CONFIG="${NODERUNNER_CONF}/${NR_CHOICE}-config.json" # CONF
@@ -172,7 +172,7 @@ NodeMaintenance() {                             # MAINTENANCE NODE
           	InitializeFolders
           	InstallCMD
           	getCN
-	  	local NODERUNNER_LINK=$ENV_NODE-node-internal
+	  	local NODERUNNER_LINK=$ENV_NODE-node-manual
                 rm -rf ${CETAK_PATH_TT}/${NODERUNNER_LINK}
                 cd ${CETAK_PATH_TT}/cardano-node
                 nix-build -A cardano-node -o ${CETAK_PATH_TT}/${NODERUNNER_LINK}
@@ -239,7 +239,7 @@ fctn_activation() {	#LAUNCH OR SHUTDOWN CETAK
                                 	NODERUNNER testnet #TESTNET
                         	else
 					echo " You have chosen MAINNET."
-					sleep 5
+					sleep 3
                                 	NODERUNNER mainnet #MAINNET
                         	fi
 
@@ -348,9 +348,9 @@ do
 	echo "-------------------------------"
 	echo "     M A I N - M E N U"
 	echo "-------------------------------"
-	echo "1. Install Cardano."
+	echo "1. Install Cardano"
         echo "2. Status of $NODES_NAME"
-        echo "3. Default Tail."
+        echo "3. Default Tail"
         echo "8. HTOP"
 	echo "9. Exit"
         # get input from the user
