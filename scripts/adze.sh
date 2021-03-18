@@ -22,7 +22,7 @@ CN_GIT_WEB="https://github.com/input-output-hk/cardano-node.git"
 CNtag=1.25.1					# Git Tag
 
 NETWORK_IDENTIFIER="--mainnet"
-NWMAGIC="764824073"
+NWMAGIC="1097911063"
 NETID_TESTNET="--testnet-magic ${NWMAGIC}"
 
 						# MAIN VARIABLES
@@ -41,6 +41,7 @@ NETID_TESTNET="--testnet-magic ${NWMAGIC}"
 
 						# INITIALIZE ALL NECESSARY DIRECTORIES
 # -----------------------------------------------
+CCLI="$CETAK_PATH_TT/cardano-cli-cetak/bin/cardano-cli" # MAIN VARIABLES CLI
 
 # -----------------------------------------------
 InitializeFolders() {           		# INITIALIZE ALL NECESSARY DIRECTORIES
