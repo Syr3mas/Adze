@@ -187,6 +187,46 @@ NodeMaintenance() {                             # MAINTENANCE NODE
 # -----------------------------------------------
 
 # -----------------------------------------------
+NodeSearch() {                             	# SEARCH NODE
+
+echo " || Information Management || "
+echo
+DIRECTIVES=("SEARCH" "NODE UTXO" "QUIT")
+PS3="Select action: "
+
+select directives in "${DIRECTIVES[@]}"
+do
+    case $directives in
+
+        "SEARCH")
+                echo -n " Search for < || Payment/Stake  Address | Pool ID || > [ENTER] "
+                read SEARCH_QUERY
+                echo
+                if [[ ${#SEARCH_QUERY} -gt 55 ]] && [[ ${#SEARCH_QUERY} -lt 110 ]]; then local TYPEOF=`expr match "$SEARCH_QUERY" '\(addr\|stake\|pool\)'`; fi
+                case $TYPEOF in
+                  addr) ${CCLI} query utxo --mary-era ${NETWORK_IDENTIFIER} --address "${SEARCH_QUERY}"  ### Search Address
+                        ${CCLI} address info --address "${SEARCH_QUERY}"
+                  ;;
+                  stake) ${CCLI} query stake-address-info --mary-era ${NETWORK_IDENTIFIER} --address "${SEARCH_QUERY}" ;; ### Shelley stake address commands
+
+                  pool) ${CCLI} query stake-distribution --mary-era ${NETWORK_IDENTIFIER} | grep "$SEARCH_QUERY" ;;  ### Shelley pool commands
+
+                  *) echo " Search Options : < Payment Address | Stake Address | Pool ID > " ;;
+                esac
+         break ;;
+
+        "NODE UTXO") ${CCLI} query utxo --mary-era ${NETWORK_IDENTIFIER} > nodeutxo.json ### Search Address
+         break ;;
+
+        "QUIT") break ;;
+    esac
+done
+exit 0
+
+}						# SEARCH NODE
+# -----------------------------------------------
+
+# -----------------------------------------------
 MultiChoiceNode() {                             # NODE
 
          case $1 in
@@ -275,6 +315,7 @@ cetak_status() {
                         echo " SLOT             : $CETAK_SLOT "
                         echo
 			if [[ $1 -eq 0 ]]; then fctn_activation $1 exit 1; fi 	#NODE MODE
+			if [[ $1 -eq 2 ]]; then NodeSearch exit 0; fi 	#NODE MODE
                 ;;
                 OFFLINE)
                         echo " ### ---- STATUS: ${CETAK_STATUS} ---- ###"
@@ -351,6 +392,7 @@ do
 	echo "1. Install Cardano"
         echo "2. Status of $NODES_NAME"
         echo "3. Default Tail"
+        echo "4. Search"
         echo "8. HTOP"
 	echo "9. Exit"
         # get input from the user
@@ -374,6 +416,10 @@ do
                         ;;
                 3)
                         ask " Show default Tail?" Y && MultiChoiceNode 1 # Only do something if you say Yes
+			MenuRerun
+                        ;;
+                4)
+                        ask " Search < POOL | ADDRESS >" Y && NodeSearch 2 # Only do something if you say Yes
 			MenuRerun
                         ;;
 
