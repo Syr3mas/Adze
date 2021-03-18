@@ -194,7 +194,8 @@ NodeMaintenance() {                             # MAINTENANCE NODE
 NodeSearch() {                             	# SEARCH NODE
 
 local NR_CHOICE="mainnet"
-if ask " Are we on *** TESTNET *** ?" Y; then NR_CHOICE="testnet"; fi
+local NETID_EXP="${NETWORK_IDENTIFIER}"
+if ask " Are we on *** TESTNET *** ?" Y; then NR_CHOICE="testnet" && NETID_EXP="${NETID_TESTNET}"; fi
 export CARDANO_NODE_SOCKET_PATH="${NODERUNNER_STATE}/${NR_CHOICE}-node.socket"
 
 echo " || Information Management || "
@@ -213,18 +214,18 @@ do
                 echo
                 if [[ ${#SEARCH_QUERY} -gt 55 ]] && [[ ${#SEARCH_QUERY} -lt 110 ]]; then local TYPEOF=`expr match "$SEARCH_QUERY" '\(addr\|stake\|pool\)'`; fi
                 case $TYPEOF in
-                  addr) ${CCLI} query utxo --mary-era ${NETWORK_IDENTIFIER} --address "${SEARCH_QUERY}"  ### Search Address
+                  addr) ${CCLI} query utxo --mary-era ${NETID_EXP} --address "${SEARCH_QUERY}"  ### Search Address
                         ${CCLI} address info --address "${SEARCH_QUERY}"
                   ;;
-                  stake) ${CCLI} query stake-address-info --mary-era ${NETWORK_IDENTIFIER} --address "${SEARCH_QUERY}" ;; ### Shelley stake address commands
+                  stake) ${CCLI} query stake-address-info --mary-era ${NETID_EXP} --address "${SEARCH_QUERY}" ;; ### Shelley stake address commands
 
-                  pool) ${CCLI} query stake-distribution --mary-era ${NETWORK_IDENTIFIER} | grep "$SEARCH_QUERY" ;;  ### Shelley pool commands
+                  pool) ${CCLI} query stake-distribution --mary-era ${NETID_EXP} | grep "$SEARCH_QUERY" ;;  ### Shelley pool commands
 
                   *) echo " Search Options : < Payment Address | Stake Address | Pool ID > " ;;
                 esac
          break ;;
 
-        "NODE UTXO") ${CCLI} query utxo --mary-era ${NETWORK_IDENTIFIER} > nodeutxo.json ### Search Address
+        "NODE UTXO") ${CCLI} query utxo --mary-era ${NETID_EXP} > nodeutxo.json ### Search Address
          break ;;
 
         "QUIT") break ;;
