@@ -21,6 +21,10 @@ NODES_NAME=Rhesus #NAME OF NODE
 CN_GIT_WEB="https://github.com/input-output-hk/cardano-node.git"
 CNtag=1.25.1					# Git Tag
 
+NETWORK_IDENTIFIER="--mainnet"
+NWMAGIC="764824073"
+NETID_TESTNET="--testnet-magic ${NWMAGIC}"
+
 						# MAIN VARIABLES
 # -----------------------------------------------
 
@@ -189,8 +193,13 @@ NodeMaintenance() {                             # MAINTENANCE NODE
 # -----------------------------------------------
 NodeSearch() {                             	# SEARCH NODE
 
+local NR_CHOICE="mainnet"
+if ask " Are we on *** TESTNET *** ?" Y; then NR_CHOICE="testnet"; fi
+export CARDANO_NODE_SOCKET_PATH="${NODERUNNER_STATE}/${NR_CHOICE}-node.socket"
+
 echo " || Information Management || "
 echo
+
 DIRECTIVES=("SEARCH" "NODE UTXO" "QUIT")
 PS3="Select action: "
 
