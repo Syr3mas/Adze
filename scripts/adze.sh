@@ -429,7 +429,7 @@ do
 			MenuRerun
                         ;;
                 4)
-                        ask " Search < POOL | ADDRESS >" Y && NodeSearch 2 # Only do something if you say Yes
+                        ask " Search < POOL | ADDRESS >" Y && cetak_status 2 # Only do something if you say Yes
 			MenuRerun
                         ;;
 
