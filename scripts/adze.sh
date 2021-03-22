@@ -34,6 +34,7 @@ NETID_TESTNET="--testnet-magic ${NWMAGIC}"
         CETAK_PATH_TT=${CETAK_PATH}/${MAIN_FOLDER}
         CETAK_PATH_CNF=${CETAK_PATH_TT}/CONF
         CETAK_PATH_TMP=${CETAK_PATH_TT}/TMP_FOLDER
+        CETAK_PATH_PF=${CETAK_PATH_TT}/portableFolder
         #----------------------------------------------------------------------
         NODERUNNER_STATE=${CETAK_PATH_TT}/state-node-noderunner
         NODERUNNER_DB=${NODERUNNER_STATE}/db-noderunner
@@ -52,6 +53,7 @@ InitializeFolders() {           		# INITIALIZE ALL NECESSARY DIRECTORIES
         #----------------------------------------------------------------------
         [[ -d ${NODERUNNER_STATE} ]] || mkdir -p -- ${CETAK_PATH_TT}/state-node-noderunner
         [[ -d ${NODERUNNER_DB} ]] || mkdir -p -- ${NODERUNNER_STATE}/db-noderunner
+        [[ -d ${CETAK_PATH_PF} ]] || mkdir -p -- ${CETAK_PATH_TT}/portableFolder
 
 }                               		# INITIALIZE ALL NECESSARY DIRECTORIES
 # -----------------------------------------------
@@ -140,11 +142,11 @@ InstallCMD() {					# Required CMD
         do
 	if ! command -v "$vCmd" > /dev/null 2>&1
 	 then
-		read -p " Can't find $vCmd. Do you wish to install this program? " yn
+		read -p " Can't find $vCmd. Do you wish to install this program [y/n]? " yn
 		case $yn in
     			[Yy]* ) nix-env -iA nixos.${vCmd};;
     			[Nn]* ) continue;;
-			* ) echo " Please answer yes or no. ";;
+			* ) echo " Please answer Yes[Yy] or No[Nn]. ";;
 		esac
 	fi
         done
