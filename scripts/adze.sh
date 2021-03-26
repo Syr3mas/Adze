@@ -20,6 +20,7 @@ NODES_NAME=Rhesus #NAME OF NODE
 
 CN_GIT_WEB="https://github.com/input-output-hk/cardano-node.git"
 CNtag=1.25.1					# Git Tag
+# CNtag=1.26.0					# Git Tag
 
 NETWORK_IDENTIFIER="--mainnet"
 NWMAGIC="1097911063"
@@ -406,6 +407,7 @@ do
         echo "2. Status of $NODES_NAME"
         echo "3. Default Tail"
         echo "4. Search"
+        echo "6. NETWORK"
         echo "8. HTOP"
 	echo "9. Exit"
         # get input from the user
@@ -434,6 +436,11 @@ do
                 4)
                         ask " Search < POOL | ADDRESS >" Y && cetak_status 2 # Only do something if you say Yes
 			MenuRerun
+                        ;;
+                6)
+                        echo
+                        netstat -atun | awk '{print $5}' | cut -d: -f1 | sed -e '/^$/d' |sort | uniq -c | sort -n
+                        exit
                         ;;
 
 		8)	htop -u $(whoami)
