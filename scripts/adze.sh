@@ -19,8 +19,7 @@ MTRCS_PORT=12798 # METRICS
 NODES_NAME=Rhesus #NAME OF NODE 
 
 CN_GIT_WEB="https://github.com/input-output-hk/cardano-node.git"
-CNtag=1.25.1					# Git Tag
-# CNtag=1.26.0					# Git Tag
+CNtag=1.26.1					# Git Tag
 
 NETWORK_IDENTIFIER="--mainnet"
 NWMAGIC="1097911063"
